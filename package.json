@@ -11,6 +11,7 @@
   "dependencies": {
     "body-parser": "^1.15.0",
     "ejs": "*",
+    "eventproxy": "^0.3.4",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "mssql": "^3.2.1",

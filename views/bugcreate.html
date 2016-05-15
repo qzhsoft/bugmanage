@@ -10,7 +10,7 @@
   
   
   div.bugcreatecontent form{
-    padding: 20xp;
+    padding: 20px;
   }
 
   ul.bugfun{
@@ -28,33 +28,31 @@
     <div class="col-md-9 bugcreatecontent">
        <form>
           <div class="form-group">
-           <label for="classname">分类</label>
-            <select class="form-control" id="classname">
-              <option></option>
-              <option>计价</option>
-              <option>招投标</option>
-              <option>4</option>
-              <option>5</option>
+           <label for="classname">哪个项目</label>
+            <select class="form-control" id="prolist">
+            
+             <% for(var i=0;i < prolist.length; i++) { %>
+              <option value="<%=prolist[i].ZID%>"><%=prolist[i].ZNAME%></option>
+             <%}%>
+
             </select>
 
           </div>
           <div class="form-group">
-            <label for="bugcontent">内容</label>
-            <textarea class="form-control" rows="3" id="bugcontent" ></textarea>
+            <label for="bugcontent">标题</label>
+            <textarea class="form-control" rows="2" id="bugcontent" ></textarea>
           </div>
           <div class="form-group">
             <label for="dowho">指派给</label>
             <select class="form-control" id="dowho">
-              <option></option>
-              <option>张三</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
+              <% for(var i=0;i < userlist.length; i++) { %>
+                <option value="<%=userlist[i].ZID %>"><%=userlist[i].ZNAME%></option>
+              <%}%>
             </select>
 
           </div>
 
-          <button type="submit" class="btn btn-primary">保存</button>
+          <button type="submit" class="btn btn-primary" style="width:100px">保存</button>
         </form>
     </div>
 

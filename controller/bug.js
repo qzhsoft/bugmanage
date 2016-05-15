@@ -1,11 +1,31 @@
 var express = require('express');
 var router = express.Router();
 var Db = require('../lib/db.js');
+var EventProxy = require('eventproxy');
 
 //创建新的bug
 router.get('/create',function(req,res,next){
   var page = req.query.page;
-  res.render('bugcreate.html',{page:page});
+  
+  var ep = new EventProxy();
+  
+  ep.all(['prolist','userlist'],function(prolist,userlist){
+    
+    res.render('bugcreate.html',{page:page,prolist:prolist,userlist:userlist});
+  });
+  
+  //取项目列表
+  var mysqlpro = 'select ZID,ZNAME from TB_PRO_ITEM order by ZOPENDATE desc';
+  Db.query(mysqlpro,function(err,rows){
+    ep.emit('prolist',!err && rows ? rows : []);
+  });
+  
+  //取出可用的用户
+  var mysqluser = 'select ZID,ZNAME from TB_USER_ITEM where ZSTOP=0 order by ZNAME';
+  Db.query(mysqluser,function(err,rows){
+    ep.emit('userlist',!err && rows ? rows : []);
+  });
+  
   
 });
 
