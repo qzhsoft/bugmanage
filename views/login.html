@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <title>擎洲开发管理系统</title>
+    <meta name="renderer" content="webkit">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+
+<style>
+  body{
+    padding-top: 10px;
+    background-color: #fff;
+  }
+  
+  div.appname h1{
+    margin-left: 20px;
+  }
+  
+  form{
+    margin-top: 100px;
+  }
+  
+  div.btn button{
+    width: 100px;
+    background-color: aquamarine;
+  }
+  div.loginimg{
+    padding: 20px;
+    padding-right: 100px;
+    text-align: center;
+    vertical-align: middle;
+    
+  }
+  div.loginimg img{
+    margin-left: 40px;
+    width: 400px;
+    height: 400px;
+    
+  }
+  
+  form.loginform{
+    padding: 20px;
+  }
+  button#dobtn{
+    width: 100px;
+  }
+</style>
+<body>
+  <div class="page-header appname"><h1>擎洲开发管理系统</h1></div>
+  <div class="row">
+    <div class="col-sm-6 loginimg">
+      <img src="">
+    </div>
+    <div class="col-sm-6">
+  <form class="form-horizontal loginform" method="post" action="/login">
+    <div class="form-group has-success">
+      <label for="inputEmail3" class="col-sm-2 control-label">姓名</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="myname" name="myname" placeholder="你的大名" value="<%=myname%>">
+        <span id="helpBlock" class="help-block">你的真实姓名.</span>
+      </div> 
+    </div>
+        
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">密码</label>
+      <div class="col-sm-8">
+        <input type="password" class="form-control" id="mypw" name="mypasswd" placeholder="你的密码">
+      </div>
+    </div>
+    
+    <div class="form-group">
+    <div class="col-sm-offset-2   col-sm-10">
+      <button type="button" class="btn btn-success" id="dobtn"><i class="fa fa-check fa-fw"></i>登录</button>
+    </div>
+    </div>
+    
+    
+  
+  </form>
+  </div>
+    
+</div>
+  
+</body>
+  
+<script src="lib/jquery-1.12.2.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+  
+<script>
+  
+  
+  $('#dobtn').on('click',function(){
+    var name = $('#myname').val();
+    if(!name){
+      alert('请输入你的大名。');
+      $('#myname').closest('div.form-group') .removeClass('has-success').addClass('has-error');
+    }
+    else{
+        $('form').submit();
+      //window.location ='/main';
+    };
+  });
+  
+  
+</script>
+
+</html>

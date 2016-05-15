@@ -1,0 +1,113 @@
+<% include header.html %>
+  
+<style>
+
+  div.bugcontent{
+    background-color: #fff;
+  }
+  table.bugtable tr th{
+    border-top:none;
+    color: #a2640f;
+  }
+  
+  table.bugtable tr.closeed{
+    color: blue; 
+  }
+  
+  table.bugtable tr.closeed a.bugtitle{
+    color: blue; 
+    text-decoration:none;
+  }
+  
+  table.bugtable tr.opening a.bugtitle{
+    color: #333;
+    text-decoration:none;
+  }
+
+</style>
+
+  
+<div class="container">
+
+  <div class="row">
+    <div class="col-md-9 bugcontent">
+      <table class="table table-hover bugtable">
+        <tr class="header">
+          <th>#</th>
+          <th>bug名称</th>
+        </tr>
+
+       <% for(var i=0 ; i< bugitems.length ; i++) {  %>
+         <tr class="<%= bugitems[i].ZRESOLVEDBY ? 'closeed' : 'opening' %>">
+           <td>#<%=bugitems[i].ZID%></td>
+           <td><a class="bugtitle" href="/bug/<%=bugitems[i].ZID%>?page=<%=curpageindex%>"><%=bugitems[i].ZTITLE%></a></td>
+         </tr>
+         
+       <%}%>
+       
+      </table>
+
+      <div class="pagerbar">
+      </div>
+
+
+    </div>
+
+    <div class="col-md-3 toolsbar">
+      <% include tools.html %>
+    </div>
+        
+  </div>
+</div>
+  
+  <!-- modal --> 
+
+  
+<script src="lib/jquery-1.12.2.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="lib/sea.js"></script>
+<script src="lib/sea-config.js"></script>
+
+<script>
+seajs.use(['pagerbar','dialog'],function(pagerbar,dialog){
+  
+  $(document).ready(function(){
+    
+    pagerbar.init('.pagerbar',
+                  <%=rowcount%>,
+                  <%=curpageindex%>,
+                  '/main?page=$$');
+
+    
+    $('a.openbug').on('click',function(){
+      var myguid = $(this).attr('bugguid');
+      $.post('/xxxxxx',{guid:myguid},function(data,stauts){
+        //
+      });
+      
+      $(this).attr('bugguid','yyyy-yyyy-yy');  
+    });
+    
+    //dialog.init('./dialog-help.html','myid1');
+    
+    $('#opendialog').on('click',function(){
+      dialog.open('./dialog-help.html');    
+    });
+    
+    $('#opencomfire').on('click',function(){
+      dialog.comfirm('./dialog-ok.html',function(){
+        alert("ttt")
+      }); 
+    });
+    
+  });
+  
+}); //end seajs
+  
+  
+  
+</script> 
+      
+<% include footer.html %>
+    
+

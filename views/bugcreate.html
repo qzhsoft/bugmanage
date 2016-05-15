@@ -1,0 +1,112 @@
+<% include header.html %>
+  
+    
+<style>
+  
+  div.bugcreatecontent{
+    background-color: #fff;
+    height: 1000px;
+  }
+  
+  
+  div.bugcreatecontent form{
+    padding: 20xp;
+  }
+
+  ul.bugfun{
+    background-color:#fff;
+    padding: 10px;
+  }
+
+</style>
+
+  
+    
+<div class="container">
+
+  <div class="row">
+    <div class="col-md-9 bugcreatecontent">
+       <form>
+          <div class="form-group">
+           <label for="classname">分类</label>
+            <select class="form-control" id="classname">
+              <option></option>
+              <option>计价</option>
+              <option>招投标</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+
+          </div>
+          <div class="form-group">
+            <label for="bugcontent">内容</label>
+            <textarea class="form-control" rows="3" id="bugcontent" ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="dowho">指派给</label>
+            <select class="form-control" id="dowho">
+              <option></option>
+              <option>张三</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+
+          </div>
+
+          <button type="submit" class="btn btn-primary">保存</button>
+        </form>
+    </div>
+
+    <div class="col-md-3 ">
+      <ul class="list-unstyled bugfun">
+        <li><a href="/main?page=<%=page%>">返回列表</a></li>
+      </ul>  
+    </div>
+       
+        
+  </div>
+</div>
+  
+  
+<script src="/lib/jquery-1.12.2.min.js"></script>
+<script src="/lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="/lib/ejs/ejs.js"></script>
+<script src="/lib/sea.js"></script>
+<script src="/lib/sea-config.js"></script>
+
+<script>
+  
+seajs.use(['dialog'],function(dialog){
+  
+
+
+  $(document).ready(function(){
+    
+    
+    dialog.init('./dialog-a.html');
+    
+    $('a.openbug').on('click',function(){
+      var myguid = $(this).attr('bugguid');
+      $.post('/xxxxxx',{guid:myguid},function(data,stauts){
+        //
+      });
+      
+      $(this).attr('bugguid','yyyy-yyyy-yy');  
+    });
+    
+    $('#opendialog').on('click',function(){
+     
+    });
+    
+    
+    
+  });
+  
+}); //end seajs
+  
+  
+  
+</script>  
+
+<% include footer.html %>
