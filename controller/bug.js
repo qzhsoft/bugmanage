@@ -11,7 +11,8 @@ router.get('/create',function(req,res,next){
   
   ep.all(['prolist','userlist'],function(prolist,userlist){
     
-    res.render('bugcreate.html',{page:page,prolist:prolist,userlist:userlist});
+    res.render('bugcreate.html',
+               {page:page,prolist:prolist,userlist:userlist});
   });
   
   //取项目列表
@@ -40,6 +41,7 @@ router.get('/:ZID',function(req,res,next){
       var mysql2 = 'select * from TB_BUG_HISTORY where ZBUG_ID= '+ ZID + 'order by ZACTIONDATE';
       Db.query(mysql2,function(err,bughistory){
         res.render('buginfo.html',{curbug:bugitem[0],
+                                   ZID:ZID,
                                    curbughistory: !err && bughistory && bughistory.length>0 ? bughistory:[],
                                    page:page});  
       });

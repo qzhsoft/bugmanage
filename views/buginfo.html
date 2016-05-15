@@ -25,6 +25,10 @@
     padding: 10px;
   }
   
+  ul.bugfun li{
+    padding: 5px;
+  }
+  
   div.mywrite form{
     margin-left: 30px;
     margin-right: 30px;
@@ -88,6 +92,8 @@
     <div class="col-md-3 ">
       <ul class="list-unstyled bugfun">
         <li><a href="/main?page=<%=page%>">返回列表</a></li>
+        <li><a href="/bug/<%=parseInt(ZID)+1%>?page=<%=page%>">上一条</a></li>
+        <li><a href="/bug/<%=parseInt(ZID)-1%>?page=<%=page%>">下一条</a></li>
       </ul>  
     </div>
         
