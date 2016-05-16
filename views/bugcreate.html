@@ -26,33 +26,58 @@
 
   <div class="row">
     <div class="col-md-9 bugcreatecontent">
-       <form>
+       <form class="form-horizontal loginform" method="post" action="/login">
+         <input type="hidden" name="ZTREE_ID" id="ZTREE_ID">
+         <input type="hidden" name="ZPRO_ID" id="ZPRO_ID">
           <div class="form-group">
            <label for="classname">哪个项目</label>
-            <select class="form-control" id="prolist">
+           <div class="row">
+             <div class="col-md-6">
+               
+                <select class="form-control" id="bugtree">
+                 <option value="">请选择(必选)</option>
+                 <% for(var i=0;i < bugtree.length; i++) { %>
+                  <option zid="<%=bugtree[i].ZID%>"  value="<%=bugtree[i].ZPRO_ID%>" haschild="<%=bugtree[i].ZHASCHILD%>" ><%=bugtree[i].ZNAME%></option>
+                 <%}%>
+                </select>
+            </div>
+            <div class="col-md-6">
+               <select class="form-control" id="subbugtree">
+               </select> 
+            </div>
+            </div>
             
-             <% for(var i=0;i < prolist.length; i++) { %>
-              <option value="<%=prolist[i].ZID%>"><%=prolist[i].ZNAME%></option>
-             <%}%>
-
-            </select>
 
           </div>
           <div class="form-group">
             <label for="bugcontent">标题</label>
-            <textarea class="form-control" rows="2" id="bugcontent" ></textarea>
+            <textarea class="form-control" rows="2" id="ZTITLE" name="ZTITLE" ></textarea>
           </div>
+          
           <div class="form-group">
             <label for="dowho">指派给</label>
-            <select class="form-control" id="dowho">
+            <select class="form-control" id="ZASSIGNEDTO" name="ZASSIGNEDTO">
               <% for(var i=0;i < userlist.length; i++) { %>
-                <option value="<%=userlist[i].ZID %>"><%=userlist[i].ZNAME%></option>
+                <option value="<%=userlist[i].ZID %>"> <%=userlist[i].ZNAME%></option>
               <%}%>
             </select>
 
           </div>
+          
+          <div class="form-group">
+            <label for="dowho">从指派给</label>
+            <select class="form-control" id="ZSUBASSIGNEDTO" name="ZSUBASSIGNEDTO">
+              <% for(var i=0;i < userlist.length; i++) { %>
+                <option value="<%=userlist[i].ZID %>"> <%=userlist[i].ZNAME%></option>
+              <%}%>
+            </select>
 
-          <button type="submit" class="btn btn-primary" style="width:100px">保存</button>
+          </div>
+          
+          <div class="form-group">
+            <button type="button" id="savetodb" class="btn btn-primary" style="width:100px">保存</button>
+            <span class="msgtxt"></span>
+          </div>  
         </form>
     </div>
 
@@ -69,7 +94,6 @@
   
 <script src="/lib/jquery-1.12.2.min.js"></script>
 <script src="/lib/bootstrap/js/bootstrap.min.js"></script>
-<script src="/lib/ejs/ejs.js"></script>
 <script src="/lib/sea.js"></script>
 <script src="/lib/sea-config.js"></script>
 
@@ -77,26 +101,79 @@
   
 seajs.use(['dialog'],function(dialog){
   
-
-
   $(document).ready(function(){
     
-    
-    dialog.init('./dialog-a.html');
-    
-    $('a.openbug').on('click',function(){
-      var myguid = $(this).attr('bugguid');
-      $.post('/xxxxxx',{guid:myguid},function(data,stauts){
-        //
-      });
+    $("#subbugtree").hide();
+    $("#bugtree").on('change',function(){
+      var selectopt = $(this).find("option:selected");
+      if(!selectopt.attr('haschild')){
+        $("#subbugtree").empty();
+        $("#subbugtree").hide();
+        return false
+      };
+      var that = this;
+      $("#subbugtree").empty();
       
-      $(this).attr('bugguid','yyyy-yyyy-yy');  
+      //有下级的情况
+      if(selectopt.attr('haschild') =='true'){
+        $("#subbugtree").show();
+        var opt = $('<option></option>');
+        opt.attr('value',selectopt.attr('value'));
+        opt.attr('zid',selectopt.attr('zid'));
+        opt.attr('pid',selectopt.attr('pid'));
+        opt.text(selectopt.text());
+        $("#subbugtree").append(opt); 
+        
+        $.get('/bug/bugtree',{pid:selectopt.attr('ZID')},function(data,status){
+          if(status=='success' && data.success == true){
+            for(var i=0;i<data.tree.length;i++){
+              var opt = $('<option></option>');
+              opt.attr('value',data.tree[i].ZPRO_ID+','+data.tree[i].ZID);
+              opt.text(data.tree[i].ZNAME);
+              $("#subbugtree").append(opt);    
+            };
+          } 
+          else{
+            alert('读取二级目录出错。');
+          }
+        });
+        
+      }
+      else{
+        $("#subbugtree").hide();  
+      }
     });
+    //end change
     
-    $('#opendialog').on('click',function(){
-     
+    
+    //保存
+    $('#savetodb').on('click',function(){
+      
+      //校对项目是否正常
+      var bugtree = $('#bugtree option:selected');
+      if(!bugtree.attr('haschild')){
+        $('span.msgtxt').text('不知你哪个项目。');
+        return false;  
+      };
+      
+      //有下级则
+      if (bugtree.attr('haschild') == 'true'){
+        var subbugtree = $('#subbugtree option:selected');
+        if(!subbugtree){
+          $('span.msgtxt').text('选择项目出错。');
+          return false;  
+        };
+        $('#ZTREE_ID').val(subbugtree.attr('zid'));
+        $('#ZPRO_ID').val(subbugtree.attr('value'));
+      }
+      else{
+        $('#ZTREE_ID').val(bugtree.attr('zid'));
+        $('#ZPRO_ID').val(bugtree.attr('value'));  
+      };
+       
+      $('form').submit();
+      
     });
-    
     
     
   });

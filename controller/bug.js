@@ -9,16 +9,16 @@ router.get('/create',function(req,res,next){
   
   var ep = new EventProxy();
   
-  ep.all(['prolist','userlist'],function(prolist,userlist){
+  ep.all(['bugtree','userlist'],function(bugtree,userlist){
     
     res.render('bugcreate.html',
-               {page:page,prolist:prolist,userlist:userlist});
+               {page:page,bugtree:bugtree,userlist:userlist});
   });
   
   //取项目列表
-  var mysqlpro = 'select ZID,ZNAME from TB_PRO_ITEM order by ZOPENDATE desc';
+  var mysqlpro = 'select ZID,ZPRO_ID,ZPID,ZHASCHILD,ZNAME from TB_BUG_TREE where ZPID=-1 order by ZSORT ';
   Db.query(mysqlpro,function(err,rows){
-    ep.emit('prolist',!err && rows ? rows : []);
+    ep.emit('bugtree',!err && rows ? rows : []);
   });
   
   //取出可用的用户
@@ -26,9 +26,33 @@ router.get('/create',function(req,res,next){
   Db.query(mysqluser,function(err,rows){
     ep.emit('userlist',!err && rows ? rows : []);
   });
+   
+});
+
+router.post('/create',function(req,res,next){
+  
   
   
 });
+
+
+//
+//取出bug的数据结构
+//
+router.get('/bugtree',function(req,res,next){
+  var pid = req.query.pid;
+  var mysqlpro = 'select ZID,ZPRO_ID,ZPID,ZHASCHILD,ZNAME from TB_BUG_TREE where ZPID=' + pid +' order by ZSORT ';
+  Db.query(mysqlpro,function(err,rows){
+    if(!err && rows){
+      res.json({success:true,msg:'',tree:rows});  
+    }
+    else{
+      res.json({success:false,msg:''});
+    }
+  });
+  
+});
+
 
 router.get('/:ZID',function(req,res,next){
   var ZID = req.params.ZID;

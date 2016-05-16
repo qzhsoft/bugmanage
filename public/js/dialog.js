@@ -1,7 +1,6 @@
  
 define(function(require, exports, module){
   
-  require('ejs');
   
   //
   // html : 1) path string

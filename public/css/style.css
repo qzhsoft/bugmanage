@@ -3,3 +3,8 @@ body{
   font-family:  "Microsoft YaHei";
   background-color: #e1e1e1;
 }
+
+span.msgtxt{
+  margin-left: 10px;
+  color: red;
+}
