@@ -4,6 +4,7 @@ var app = express();
 var ejs = require('ejs');
 var path = require('path');
 var session = require('express-session');
+var flash = require('connect-flash');
 
 var bodyparse = require('body-parser');
 
@@ -20,6 +21,7 @@ app.use(session({
     key:'mrlong',
     cookie:{secure:false,secure: false,maxAge: 1000 * 60 * 60 * 24 * 1}
 }));
+app.use(flash());
 
 
 var router = require('./router.js');

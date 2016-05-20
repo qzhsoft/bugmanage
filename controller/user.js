@@ -17,5 +17,20 @@ router.get('/info/:userid',function(req,res,next){
   });
 });
 
+//取出用户的列表
+router.get('/items',function(req,res,next){
+  var mysql = 'select ZID,ZNAME from TB_USER_ITEM where ZSTOP=0 order by ZNAME';
+  
+  Db.query(mysql,function(err,user){
+    if(!err && user){
+      res.json({success:true,msg:'',users:user});
+    }
+    else{
+      res.json({success:false,msg:'查无用户'});
+    }
+  });
+  
+});
+
 
 module.exports = router; 

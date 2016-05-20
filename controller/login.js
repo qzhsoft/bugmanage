@@ -5,7 +5,13 @@ var Db = require('../lib/db.js');
 
 router.get('/',function(req,res,next){
   
-    res.render('login.html',{myname:'long'});
+  Db.query('select top 1 ZNAME from TB_TODAYSAY where ZSTOP=0 order by ZDATE desc',function(err,rows){
+    res.render('login.html',{
+      msgbox:req.flash('msgbox'),
+      today:!err && rows && rows.length>0 ? rows[0].ZNAME : ''
+    });  
+  });
+  
     
 });
 
@@ -21,6 +27,7 @@ router.post('/',function(req,res,next){
         res.redirect('/main');  
       } 
       else{
+        req.flash('msgbox',{success:false,msg:'账号或密码出错。'});
         res.redirect('/login');    
       }
     });

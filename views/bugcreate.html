@@ -11,6 +11,7 @@
   
   div.bugcreatecontent form{
     padding: 20px;
+    
   }
 
   ul.bugfun{
@@ -26,7 +27,7 @@
 
   <div class="row">
     <div class="col-md-9 bugcreatecontent">
-       <form class="form-horizontal loginform" method="post" action="/login">
+       <form class="form-horizontal loginform" method="post" action="/bug/create?page=<%=page%>">
          <input type="hidden" name="ZTREE_ID" id="ZTREE_ID">
          <input type="hidden" name="ZPRO_ID" id="ZPRO_ID">
           <div class="form-group">
@@ -51,12 +52,13 @@
           </div>
           <div class="form-group">
             <label for="bugcontent">标题</label>
-            <textarea class="form-control" rows="2" id="ZTITLE" name="ZTITLE" ></textarea>
+            <textarea class="form-control" rows="2" id="ZTITLE" name="ZTITLE"  placeholder="问题简单描述(必填)"></textarea>
           </div>
           
           <div class="form-group">
             <label for="dowho">指派给</label>
-            <select class="form-control" id="ZASSIGNEDTO" name="ZASSIGNEDTO">
+            <select class="form-control" id="ZASSIGNEDTO" name="ZASSIGNEDTO" >
+              <option></option>
               <% for(var i=0;i < userlist.length; i++) { %>
                 <option value="<%=userlist[i].ZID %>"> <%=userlist[i].ZNAME%></option>
               <%}%>
@@ -67,6 +69,7 @@
           <div class="form-group">
             <label for="dowho">从指派给</label>
             <select class="form-control" id="ZSUBASSIGNEDTO" name="ZSUBASSIGNEDTO">
+              <option></option>
               <% for(var i=0;i < userlist.length; i++) { %>
                 <option value="<%=userlist[i].ZID %>"> <%=userlist[i].ZNAME%></option>
               <%}%>
@@ -75,7 +78,7 @@
           </div>
           
           <div class="form-group">
-            <button type="button" id="savetodb" class="btn btn-primary" style="width:100px">保存</button>
+            <button type="button" id="savetodb" data-loading-text="提交中..." class="btn btn-primary" style="width:100px" autocomplete="off" >保存</button>
             <span class="msgtxt"></span>
           </div>  
         </form>
@@ -128,7 +131,8 @@ seajs.use(['dialog'],function(dialog){
           if(status=='success' && data.success == true){
             for(var i=0;i<data.tree.length;i++){
               var opt = $('<option></option>');
-              opt.attr('value',data.tree[i].ZPRO_ID+','+data.tree[i].ZID);
+              opt.attr('value',data.tree[i].ZPRO_ID);
+              opt.attr('zid',data.tree[i].ZID);
               opt.text(data.tree[i].ZNAME);
               $("#subbugtree").append(opt);    
             };
@@ -149,9 +153,12 @@ seajs.use(['dialog'],function(dialog){
     //保存
     $('#savetodb').on('click',function(){
       
+      var $btn = $(this).button('loading');
+      
       //校对项目是否正常
       var bugtree = $('#bugtree option:selected');
       if(!bugtree.attr('haschild')){
+        $btn.button('reset');
         $('span.msgtxt').text('不知你哪个项目。');
         return false;  
       };
@@ -160,6 +167,7 @@ seajs.use(['dialog'],function(dialog){
       if (bugtree.attr('haschild') == 'true'){
         var subbugtree = $('#subbugtree option:selected');
         if(!subbugtree){
+          $btn.button('reset');
           $('span.msgtxt').text('选择项目出错。');
           return false;  
         };
@@ -169,6 +177,12 @@ seajs.use(['dialog'],function(dialog){
       else{
         $('#ZTREE_ID').val(bugtree.attr('zid'));
         $('#ZPRO_ID').val(bugtree.attr('value'));  
+      };
+      
+      if($('#ZTITLE').val() == ''){
+        $btn.button('reset');
+        $('span.msgtxt').text('标题不能为空。');
+        return false;     
       };
        
       $('form').submit();

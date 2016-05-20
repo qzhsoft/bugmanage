@@ -4,7 +4,7 @@
   
   div.buginfocontent{
     background-color: #fff;
-    height: 1000px;
+    padding-bottom: 30px;
   }
   
   div.bugdei li{
@@ -29,42 +29,78 @@
     padding: 5px;
   }
   
-  div.mywrite form{
+  div.mywrite .form-group{
     margin-left: 30px;
     margin-right: 30px;
   }
+  
+  div.bugres{
+    margin-left: 20px;
+  }
+  div.bugres blockquote{
+    
+    border-left: 5px solid #3c763d;
+    background-color: #edffed;
+  }
+  
+  div.bugres div.suc-info{
+    margin-left: 10px;
+    padding: 5px;
+  }
+  
+  div.replyuser{
+    font-size: 14px;
+    color: #888;
+  }
+  
+
     
 </style>
 
 <div class="container">
-
+  
   <div class="row">
     <div class="col-md-9 buginfocontent">
+      <form class="form-horizontal buginfoform" method="post" action="/bug/reply?page=<%=page%>">
+      <input type="hidden" name="bugid" value="<%=curbug.ZID%>">
       <div class="page-header">
-        <h4><%=curbug.ZTITLE%></h4>  
+        <a class="pull-right" href="javascript:;" id="changeusr">修改</a> 
+        <h4><%=curbug.ZTITLE%></h4> 
       </div>
       <div class="bugdei">
         <ul>
+          <li><b>[项目]</b> <%=treename%></li>
           <li><b>[创建人]</b> <span class="userinfo" userid="<%=curbug.ZOPENEDBY%>"></span></li>
           <li><b>[创建时间]</b> <%=curbug.ZOPENEDDATE.toLocaleDateString() %> <%=curbug.ZOPENEDDATE.toLocaleTimeString() %> </li>
-          <li><b>[指派给]</b> <span class="userinfo" userid="<%=curbug.ZASSIGNEDTO%>"></span><b>   [从指派]</b> <span class="userinfo" userid="<%=curbug.ZSUBASSIGNEDTO%>"></span> </li>
+          <li class="ass_user"><b>[指派给]</b> <span class="userinfo" userid="<%=curbug.ZASSIGNEDTO%>"></span>
+              <b>  [从指派]</b> <span class="userinfo" userid="<%=curbug.ZSUBASSIGNEDTO%>"></span></li>
           <li><b>[邮件通知]</b> <%=curbug.ZMAILTO%></li> 
-        </ul>    
+        </ul>
+          
       </div>
+      
+      <% if (curbug.ZRESOLVEDBY) {%>
+      <div class="bugres bg-success">
+          <blockquote >  
+            <div class="suc-info"><b>[解决人]</b><span class="userinfo" userid="<%=curbug.ZRESOLVEDBY%>"></span></div>
+            <div class="suc-info"><b>[解决时间]</b> <%=curbug.ZRESOLVEDDATE.toLocaleString()%></div>
+          </blockquote> 
+      </div>
+      <%}%>
       
       <% if(curbughistory.length>0) {%>
         <div class="page-header">
           <h5>回复:</h5>
         </div>
       <%}%>
-      <div class="bughistory">
+      <div class="bughistory ">
         <% for(var i=0;i<curbughistory.length;i++) { %>
-          <blockquote>
-            <div>
+          <blockquote >
+            <div class="replyuser">
               <span class="userinfo" userid="<%=curbughistory[i].ZUSER_ID%>"></span>
               <span><%=curbughistory[i].ZACTIONDATE.toLocaleDateString() %> <%=curbughistory[i].ZACTIONDATE.toLocaleTimeString() %></span>
             </div>
-            <p>
+            <p >
               <%=curbughistory[i].ZCONTEXT%>
             </p>
           </blockquote>    
@@ -78,15 +114,20 @@
         <h5>我有话要说:</h5>
       </div>
       <div class="mywrite">
-        <form>
          <div class="form-group">
-          <textarea class="form-control" rows="3"></textarea>
+            <textarea class="form-control" rows="3" id="replycontent" name="replycontent"></textarea>
           </div>  
           <div class="form-group">
-          <button type="submit" class="btn btn-primary" style="width:100px">回复</button>
+            <button type="button" id="replybtn" class="btn btn-primary" style="width:100px" data-loading-text="提交中..." autocomplete="off" >回复</button>
+            <span class="msgtxt"></span>
+            <div class="pull-right">
+              <button type="button" id="closebtn" class="btn btn-success" style="width:100px">我解决了</button>
+              <button type="button" id="openbtn" class="btn btn-danger" style="width:100px">激动问题</button>
+            </div>
           </div>
-        </form>
       </div>
+      </form>
+      <a href="/main?page=<%=page%>">返回列表</a>
     </div>
 
     <div class="col-md-3 ">
@@ -98,6 +139,7 @@
     </div>
         
   </div>
+ 
 </div>
 
 
@@ -113,10 +155,96 @@
     $('span.userinfo').each(function(idx,item){
       var userid = $(item).attr('userid');
       $.get('/user/info/'+userid,function(data,status){
-        $(item).text(status=='success' && data.success==true?data.user.ZNAME:data.msg||'查无用户');    
+        $(item).text(status=='success' && data.success==true && data.user ?data.user.ZNAME:data.msg||'');    
       });
       
     });
+    
+    //更改信息
+    $('#changeusr').on('click',function(){
+      
+      var myheader = $(this).closest('.page-header');
+      myheader.empty();
+      var title = $('<input type="text" class="form-control" value="<%=curbug.ZTITLE.replace(/[\r\n]/g,'')%>" name="ZTITLE"></input>');
+      title.attr('style','width:500px;margin-left: 20px');
+      myheader.append($('<small>回复之后回写到库。</small>').addClass('pull-right bg-warning'));
+      myheader.append(title);
+      
+      var li = $('li.ass_user');
+      var sel_user = $('<select name="ZASSIGNEDTO" class="form-control" id="ZASSIGNEDTO"></select>').append($('<option></option>'));
+      sel_user.attr('style','width:200px;margin-left: 10px;margin-right:10px;');
+      var sel_subuser = $('<select name="ZSUBASSIGNEDTO" class="form-control" id="ZSUBASSIGNEDTO"></select>').append($('<option></option>'));
+      sel_subuser.attr('style','width:200px;margin-left: 10px;margin-right:10px;');
+      
+      $.get('/user/items',function(data,status){
+        if(status=='success' && data.success==true){
+          
+          for(var i=0;i<data.users.length;i++){
+            var opt = $('<option></option>');
+            opt.attr('value',data.users[i].ZID);
+            opt.text(data.users[i].ZNAME);
+            var subopt = opt.clone();
+            if(data.users[i].ZID == <%=curbug.ZASSIGNEDTO%>){
+              opt.attr('selected','selected');   
+            };
+            sel_user.append(opt);
+            if(data.users[i].ZID == <%=curbug.ZSUBASSIGNEDTO%>){
+              subopt.attr('selected','selected');   
+            };
+            sel_subuser.append(subopt);
+          }
+          
+          li.empty();
+          li.append('<label>指派给:</label>');
+          li.append(sel_user);
+          li.append('<label>从指派:</label>');
+          li.append(sel_subuser);
+          
+        }
+        else{
+          alert('读取用户信息出错。');  
+        }
+      });
+      
+    });
+  
+    //回复
+    $('#replybtn').on('click',function(){
+      var $btn = $(this).button('loading');
+      if($('#replycontent').val() == ''){
+        $btn.button('reset');
+        $('span.msgtxt').text('回复内容不能为空。');
+        return false;     
+      };
+       
+      $('form.buginfoform').submit();
+      
+    });
+  
+    //解决了
+    $('#closebtn').on('click',function(){
+      var $btn = $(this).button('loading');
+      if($('#replycontent').val() == ''){
+        $btn.button('reset');
+        $('span.msgtxt').text('回复内容不能为空。');
+        return false;     
+      };
+      $('form.buginfoform').attr('action','/bug/closed?page=<%=page%>');
+      $('form.buginfoform').submit();
+    });
+  
+    //激活
+    $('#openbtn').on('click',function(){
+      var $btn = $(this).button('loading');
+      if($('#replycontent').val() == ''){
+        $btn.button('reset');
+        $('span.msgtxt').text('回复内容不能为空。');
+        return false;     
+      };
+      $('form.buginfoform').attr('action','/bug/opened?page=<%=page%>');
+      $('form.buginfoform').submit();
+    });
+    
     
   });
 </script>

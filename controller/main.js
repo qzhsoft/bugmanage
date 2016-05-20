@@ -19,6 +19,7 @@ router.get('/',function(req,res,next){
     if(!err){
       Db.query('select count(*) as myv from TB_BUG_ITEM',function(err,count){
         res.render('main.html',{bugitems:data,
+                                msgbox:req.flash('msgbox'),
                                 rowcount:!err? count[0].myv : 0 ,
                                 curpageindex:pageindex});  
       });

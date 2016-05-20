@@ -8,3 +8,11 @@ span.msgtxt{
   margin-left: 10px;
   color: red;
 }
+
+div.msgbox{
+  padding-left: 0px;
+}
+
+div.msgbox .alert{
+  border-radius: 0px;
+}
