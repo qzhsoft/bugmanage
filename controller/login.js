@@ -2,6 +2,11 @@ var express = require('express');
 var router = express.Router();
 var Db = require('../lib/db.js');
 
+//退出
+router.get('/logout',function(req,res,next){
+  req.session.user = null;
+  res.redirect('/login');
+});
 
 router.get('/',function(req,res,next){
   
@@ -23,7 +28,8 @@ router.post('/',function(req,res,next){
     var mysql = "select * from TB_USER_ITEM where ZNAME='" + myname +"' and ZPASS='"+ mypasswd +"'" ;
     Db.query(mysql,function(err,data){
       if(!err && data.length > 0 ){
-        req.session.user = {name:myname,ZID:data[0].ZID};
+        //类型=0系统用户,1=开发人员 2=测试人员,3=其他人员
+        req.session.user = {name:myname,ZID:data[0].ZID,ZTYPE:data[0].ZTYPE};
         res.redirect('/main');  
       } 
       else{
@@ -33,6 +39,8 @@ router.post('/',function(req,res,next){
     });
         
 });
+
+
 
 
 
