@@ -25,6 +25,9 @@ router.use('/bug',hasloginuser,require('./controller/bug.js'));
 //用户信息
 router.use('/user',require('./controller/user.js'));
 
+//svn日志
+router.use('/svn',hasloginuser,require('./controller/svn.js'));
+
 //都没有找到，转到其他。
 router.get('/', hasloginuser,function (req, res) {
   res.redirect('/main');

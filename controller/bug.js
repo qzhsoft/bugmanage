@@ -280,7 +280,7 @@ router.get('/:ZID',function(req,res,next){
   var ZID = req.params.ZID;
   var page = req.query.page;
   
-  var mysql = 'select * from TB_BUG_ITEM where ZID=' + ZID;
+  var mysql = 'select *,CONVERT(varchar(100), ZOPENEDDATE, 20) as myod,CONVERT(varchar(100), ZRESOLVEDDATE, 20) as myrd from TB_BUG_ITEM where ZID=' + ZID;
   Db.query(mysql,function(err,bugitem){
     if(!err){
       
@@ -298,7 +298,7 @@ router.get('/:ZID',function(req,res,next){
       
       
       //查回复
-      var mysql2 = 'select * from TB_BUG_HISTORY where ZBUG_ID= '+ ZID + 'order by ZACTIONDATE';
+      var mysql2 = 'select *,CONVERT(varchar(100), ZACTIONDATE, 20) as myd from TB_BUG_HISTORY where ZBUG_ID= '+ ZID + 'order by ZACTIONDATE';
       Db.query(mysql2,function(err,bughistory){
         ep.emit('history',!err && bughistory && bughistory.length>0 ? bughistory:[]);
       });

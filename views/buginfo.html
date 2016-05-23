@@ -71,7 +71,7 @@
         <ul>
           <li><b>[项目]</b> <%=treename%></li>
           <li><b>[创建人]</b> <span class="userinfo" userid="<%=curbug.ZOPENEDBY%>"></span></li>
-          <li><b>[创建时间]</b> <%=curbug.ZOPENEDDATE.toLocaleDateString() %> <%=curbug.ZOPENEDDATE.toLocaleTimeString() %> </li>
+          <li><b>[创建时间]</b> <%=curbug.myod %> </li>
           <li class="ass_user"><b>[指派给]</b> <span class="userinfo" userid="<%=curbug.ZASSIGNEDTO%>"></span>
               <b>  [从指派]</b> <span class="userinfo" userid="<%=curbug.ZSUBASSIGNEDTO%>"></span></li>
           <li><b>[邮件通知]</b> <%=curbug.ZMAILTO%></li> 
@@ -83,7 +83,7 @@
       <div class="bugres bg-success">
           <blockquote >  
             <div class="suc-info"><b>[解决人]</b><span class="userinfo" userid="<%=curbug.ZRESOLVEDBY%>"></span></div>
-            <div class="suc-info"><b>[解决时间]</b> <%=curbug.ZRESOLVEDDATE.toLocaleString()%></div>
+            <div class="suc-info"><b>[解决时间]</b> <%=curbug.myrd%></div>
           </blockquote> 
       </div>
       <%}%>
@@ -98,7 +98,7 @@
           <blockquote >
             <div class="replyuser">
               <span class="userinfo" userid="<%=curbughistory[i].ZUSER_ID%>"></span>
-              <span><%=curbughistory[i].ZACTIONDATE.toLocaleDateString() %> <%=curbughistory[i].ZACTIONDATE.toLocaleTimeString() %></span>
+              <span><%=curbughistory[i].myd %></span>
             </div>
             <p >
               <%=curbughistory[i].ZCONTEXT%>

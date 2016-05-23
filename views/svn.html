@@ -1,0 +1,106 @@
+<% include header.html %>
+
+
+<style>
+  
+  div.svncontent{
+    padding: 20px;
+    background-color: #fff;  
+  }
+  
+  div.svncontent .svncommit{
+    margin: 5px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  div.svninfo{
+    padding: 10px 0px  10px 0px;
+    font-size: 16px;
+  }
+  
+  div.svninfo span.label{
+    margin-right: 5px;
+  }
+
+  
+</style>
+
+
+
+
+<div class="container">
+  <div class="svncontent">
+    
+    <% for(var i=0;i<svnitems.length;i++){%>
+      <div class="svncommit">
+        <div class="svninfo">
+          <strong ><span  class="label label-primary">SVN账号</span><%=svnitems[i].ZAUTHOR%></strong>
+          <strong ><span  class="label label-default">版本</span><%=svnitems[i].ZVERSION%></strong>
+          <span class="pull-right">时间：<%=svnitems[i].myd%></span>
+        </div>  
+      
+        
+        <blockquote class="svnbody">
+          <p><%=svnitems[i].ZMESSAGE%></p>
+          <footer>明细内容 
+            <cite title="Source Title"><a href="javascript:;" ZSVN_GUID="<%=svnitems[i].ZSVN_GUID%>" ZVERSION="<%=svnitems[i].ZVERSION%>">读取</a></cite>
+          </footer>
+        </blockquote>
+        
+      </div>  
+    
+    <%}%>
+    
+  <div class="pagerbar"></div>
+  </div>
+
+
+</div>
+
+
+<script src="lib/jquery-1.12.2.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="lib/sea.js"></script>
+<script src="lib/sea-config.js"></script>
+
+<script>
+seajs.use(['pagerbar'],function(pagerbar,dialog){
+  $(document).ready(function(){
+    
+    ChangeMenu('svn');
+    pagerbar.init('.pagerbar',
+                  <%=rowcount%>,
+                  <%=curpageindex%>,
+                  '/svn?page=$$');
+    
+    
+    $('a[ZSVN_GUID]').on('click',function(){
+      var zsvn_guid = $(this).attr('ZSVN_GUID');
+      var zversion = $(this).attr('ZVERSION');
+      var blockquote = $(this).closest('blockquote');
+      var that = this;
+      $(this).text('读取数据中，请稍候...');
+      
+      $.get('/svn/change',{zsvn_guid:zsvn_guid,zversion:zversion},function(data,status){
+        if(status=='success' && data.success == true){
+          for(var i=0;i<data.rows.length;i++){
+            var footer = $('<footer></footer>');
+            
+            footer.html('<action style="color:blue">' + data.rows[i].ZACTION + '</action> ' + data.rows[i].ZPATH);
+            blockquote.append(footer);
+          }
+          $(that).closest('footer').remove();    
+        }
+        else{
+          $(that).text('读取数据出错:' + data.msg || '').attr('style','color:red;');  
+        }
+        
+      });
+      
+      
+    });
+  });
+  
+});
+</script>
+<% include footer.html %>
