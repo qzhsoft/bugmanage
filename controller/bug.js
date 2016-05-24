@@ -3,6 +3,8 @@ var router = express.Router();
 var Db = require('../lib/db.js');
 var EventProxy = require('eventproxy');
 var util = require('util');
+var fs = require('fs');
+var config = require('../config.js');
 
 //创建新的bug
 router.get('/create',function(req,res,next){
@@ -247,6 +249,25 @@ router.post('/opened',function(req,res,next){
 });
 
 
+//
+//bug 附件的下载
+//
+router.get('/attach/:GUID/:name',function(req,res,next){
+  var localguid = req.params.GUID;
+  var filepath = config.attachdir + '/' + localguid;
+  console.log(filepath);
+  
+  fs.readFile(filepath,function(err,stream){
+    if(!err){
+      res.set('Content-Type', 'application/octet-stream');
+      res.status(200).send(stream); 
+    }
+    else{
+      res.status(404).send('Sorry, not find that!'+err);   
+    }    
+  });
+  
+});
 
 //
 //bug 的信息
@@ -261,13 +282,14 @@ router.get('/:ZID',function(req,res,next){
       
       var ep = new EventProxy();
       
-      ep.all(['history','treename'],function(history,treename){
+      ep.all(['history','treename','attach'],function(history,treename,attach){
         
         res.render('buginfo.html',{curbug:bugitem[0],
                                    ZID:ZID,
                                    msgbox:req.flash('msgbox'),
                                    curbughistory: history,
                                    treename:treename,
+                                   attachlist:attach,  //附件列表
                                    page:page});    
       });
       
@@ -292,7 +314,15 @@ router.get('/:ZID',function(req,res,next){
         else{
           ep.emit('treename',!err && tree && tree.length>0 ? tree[0].ZNAME:'');
         }
-      });   
+      });
+      
+      //取出bug的附件
+      
+      var mysqltxt3_frm = 'select a.*,b.ZLOCALGUID from  TB_FILE_ITEM as a ,TB_FILE_CONTEXT as b where a.ZCONTENTID=%d and a.ZSTYPE=1 and a.ZID = b.ZFILE_ID  Order by a.ZEDITDATETIME';
+      var mysqltxt3 = util.format(mysqltxt3_frm,bugitem[0].ZID);
+      Db.query(mysqltxt3,function(err,rows){
+        ep.emit('attach',!err && rows ? rows:[]);    
+      });
     }
     else{
       res.render('buginfo.html',{curbug:{},curbughistory:[],page:page}); 

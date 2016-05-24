@@ -16,8 +16,12 @@
      color:#a2640f;
   }
   
-  div.bughistory{
+  div.attachlist{
     padding: 20px;
+  }
+  
+  div.bughistory{
+    padding: 0px 20px 0px 20px;
   }
   
   ul.bugfun{
@@ -28,6 +32,8 @@
   ul.bugfun li{
     padding: 5px;
   }
+  
+
   
   div.mywrite .form-group{
     margin-left: 30px;
@@ -79,6 +85,17 @@
           
       </div>
       
+      <% if(attachlist.length>0) {%>
+      <div class="attachlist">
+        <div class="page-header">
+           <h5>附件</h5>
+        </div>
+        <% for(var i=0;i<attachlist.length;i++) {%>
+        <div class="attachitem"><a target="_blank" href="/bug/attach/<%=attachlist[i].ZLOCALGUID%>/<%=attachlist[i].ZNAME%>"><%=attachlist[i].ZNAME%></a></div>  
+        <%}%>  
+      </div>
+      <%}%>
+      
       <% if (curbug.ZRESOLVEDBY) {%>
       <div class="bugres bg-success">
           <blockquote >  
@@ -88,12 +105,15 @@
       </div>
       <%}%>
       
-      <% if(curbughistory.length>0) {%>
-        <div class="page-header">
-          <h5>回复:</h5>
-        </div>
-      <%}%>
+      
+      
       <div class="bughistory ">
+         <% if(curbughistory.length>0) {%>
+          <div class="page-header">
+            <h5>回复:</h5>
+          </div>
+        <%}%>
+       
         <% for(var i=0;i<curbughistory.length;i++) { %>
           <blockquote >
             <div class="replyuser">
