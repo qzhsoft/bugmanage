@@ -119,33 +119,24 @@ router.post('/reply',function(req,res,next){
   
   var curuserid = req.session.user.ZID;
   
-  Db.query('select max(ZID) +1 as mymax from TB_BUG_HISTORY',function(err,rows){
-  
-    if(err){
-      req.flash('msgbox',{success:false,msg:'计算ZID值出错。'});
+  //写入库内
+  var mysqlfrm = "insert into TB_BUG_HISTORY" + 
+                 "(ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
+                 "(%d,%d,0,GETDATE(),'%s')";
+  var mysqltxt = util.format(mysqlfrm,parseInt(bugid),curuserid,content);
+
+  Db.exec(mysqltxt,function(err){
+
+    if(!err){
+      res.redirect('/bug/'+bugid+'?page='+page);   
+    }
+    else{
+      req.flash('msgbox',{success:false,msg:'保存到库内出错。'+err.message});
       res.redirect('/bug/'+bugid+'?page='+page);  
-      return false;
-    };
-    
-    //写入库内
-    var mysqlfrm = "insert into TB_BUG_HISTORY" + 
-                   "(ZID,ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
-                   "(%d,%d,%d,0,GETDATE(),'%s')";
-    var mysqltxt = util.format(mysqlfrm,rows[0].mymax,parseInt(bugid),curuserid,content);
+    }
 
-    Db.exec(mysqltxt,function(err){
-
-      if(!err){
-        res.redirect('/bug/'+bugid+'?page='+page);   
-      }
-      else{
-        req.flash('msgbox',{success:false,msg:'保存到库内出错。'});
-        res.redirect('/bug/'+bugid+'?page='+page);  
-      }
-
-    });
-    
   });
+  
   
   //可能会有基本资料修改
   var ZTITLE = req.body.ZTITLE;
@@ -190,23 +181,15 @@ router.post('/closed',function(req,res,next){
   
   
   //写回复库
-  Db.query('select max(ZID) +1 as mymax from TB_BUG_HISTORY',function(err,rows){
-  
-    if(err){
-      ep.emit('history',!err?true:false);
-    };
-    
-    //写入库内
-    var mysqlfrm = "insert into TB_BUG_HISTORY" + 
-                   "(ZID,ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
-                   "(%d,%d,%d,1,GETDATE(),'%s')"; //1=解决了
-    var mysqltxt = util.format(mysqlfrm,rows[0].mymax,parseInt(bugid),curuserid,content);
+  var mysqlfrm = "insert into TB_BUG_HISTORY" + 
+                 "(ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
+                 "(%d,%d,%d,1,GETDATE(),'%s')"; //1=解决了
+  var mysqltxt = util.format(mysqlfrm,parseInt(bugid),curuserid,content);
 
-    Db.exec(mysqltxt,function(err){
-      ep.emit('history',!err?true:false);
-    });
-    
+  Db.exec(mysqltxt,function(err){
+    ep.emit('history',!err?true:false);
   });
+  
   
   //更新bug表
   var mysqltxtfrm2 = "update TB_BUG_ITEM set ZRESOLVEDBY=%d,ZRESOLVEDDATE=GETDATE(),ZLASTEDITEDBY=%d,ZLASTEDITEDDATE=GETDATE() where ZID=%d";
@@ -242,23 +225,15 @@ router.post('/opened',function(req,res,next){
   
   
   //写回复库
-  Db.query('select max(ZID) +1 as mymax from TB_BUG_HISTORY',function(err,rows){
-  
-    if(err){
-      ep.emit('history',!err?true:false);
-    };
-    
-    //写入库内
-    var mysqlfrm = "insert into TB_BUG_HISTORY" + 
-                   "(ZID,ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
-                   "(%d,%d,%d,2,GETDATE(),'%s')"; //1=解决了
-    var mysqltxt = util.format(mysqlfrm,rows[0].mymax,parseInt(bugid),curuserid,content);
+  var mysqlfrm = "insert into TB_BUG_HISTORY" + 
+                 "(ZID,ZBUG_ID,ZUSER_ID,ZSTATUS,ZACTIONDATE,ZCONTEXT) values"+
+                 "(%d,%d,%d,2,GETDATE(),'%s')"; //1=解决了
+  var mysqltxt = util.format(mysqlfrm,rows[0].mymax,parseInt(bugid),curuserid,content);
 
-    Db.exec(mysqltxt,function(err){
-      ep.emit('history',!err?true:false);
-    });
-    
+  Db.exec(mysqltxt,function(err){
+    ep.emit('history',!err?true:false);
   });
+  
   
   //更新bug表
   var mysqltxtfrm2 = "update TB_BUG_ITEM set ZRESOLVEDBY=null,ZRESOLVEDDATE=GETDATE(),ZLASTEDITEDBY=%d,ZLASTEDITEDDATE=GETDATE() where ZID=%d";
