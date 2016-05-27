@@ -255,7 +255,6 @@ router.post('/opened',function(req,res,next){
 router.get('/attach/:GUID/:name',function(req,res,next){
   var localguid = req.params.GUID;
   var filepath = config.attachdir + '/' + localguid;
-  console.log(filepath);
   
   fs.readFile(filepath,function(err,stream){
     if(!err){
