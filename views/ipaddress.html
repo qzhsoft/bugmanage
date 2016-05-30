@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link href="/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    
+</head>
+
+<style>
+  body{
+    background-color: #f2f2f2;
+  }
+  
+  .container{
+     padding: 20px;
+    background-color: #fff;
+  }
+  
+  div.iplist {
+   
+  }
+  
+  .addIPPlane{
+    padding: 20px;
+  }
+  
+  
+  small.btnsmall{
+    padding: 2px;
+  }
+  
+  
+  
+</style>
+<body>
+  <div class="container">
+   <div class="alert alert-danger" role="alert">
+    <a href="#" class="alert-link">禁止在没有事先通知的情况下，自己用路由器组建网络会引发整个公司网络不能上网。</a>
+  </div>
+   <div class="row">
+     <div class="col-lg-12 iplist">
+   
+        <table class="table table-bordered table-hover">
+          <tr>
+            <th>部门</th>
+            <th>IP</th>
+            <th>姓名</th>
+            <th>MAC地址</th>
+            <th>说明</th>
+          </tr>
+
+          <% for( var i=0;i<ips.length;i++) { %>
+            <tr guid="<%=ips[i].ZGUID%>">
+              <td><%=ips[i].ZPARTNAME%> </td>
+              <td>
+                <%=ips[i].ZIP%>
+                <small class="pull-right btnsmall"> <a class="btnwhouseip" href="javascript:;" data-ipguid="<%=ips[i].ZGUID%>" >曾经谁用过</a></small>
+                <small class="pull-right btnsmall"> <a data-toggle="modal" data-target="#myrepip" href="javascript:;" class="myrepid" data-ip="<%=ips[i].ZIP%>" data-partname="<%=ips[i].ZPARTNAME%>" data-ipguid="<%=ips[i].ZGUID%>">我申请使用</a></small>
+              </td>
+              
+              <% if(ips[i].ZUSE ==1){ %>
+                <td style="background-color:green">
+                  <%=ips[i].ZWHOUSE %> <%= ips[i].myd %>
+                  <small class="pull-right btnsmall"> <a href="/ipaddress/blackip/<%=ips[i].ZGUID%>" style="color:red" >回收IP</a></small>
+                </td>
+                <td style="background-color:green"><%=ips[i].ZMAC!='null' ?ips[i].ZMAC : '' %></td>
+                <td style="background-color:green"><%=ips[i].ZTITLE%></td>
+             <%} else if(ips[i].ZVERIFY==false) {%>
+                <td style="background-color:yellow"><%=ips[i].BZWHOUSE%></td>
+                <td style="background-color:yellow"><%=ips[i].BZMAC %></td>
+                <td style="background-color:yellow"><%=ips[i].BZNOTE%></td> 
+             <%} else{%>
+               <td></td>
+               <td></td>
+               <td></td>
+             <%}%>
+            </tr>
+          <%}%>
+        </table>
+        
+        <% if(admin){ %>
+        <a href="javascript:;" id="addipaddress">增加IP</a>
+        <%}%>
+        <div class="addIPPlane hidden">
+          <form action="/ipaddress/addip" class="addip" method="post">
+            <div class="form-group">
+              <label for="exampleInputEmail1">IP 格式: 192.168.1~20 或 192.168.1.1</label>
+              <input type="text" class="form-control" id="ip" name="ip" placeholder="">
+            </div>
+            
+            <div class="form-group">
+              <label for="exampleInputEmail1">部门</label>
+              <input type="text" class="form-control" id="partname" name="partname"  placeholder="">
+            </div>
+            <span class="msg-error" style="color:red"></span>
+            <button type="button" id="addipbtn" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        
+      </div>
+      
+    </div>
+  </div> 
+  
+<!-- 申请窗口 -->
+<div class="modal fade" id="myrepip" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">我要申请IP</h4>
+      </div>
+      <div class="modal-body">
+         <form>
+         <input type="hidden" name="ZIPGUID" id="ZIPGUID">
+         <input type="hidden" name="ZIP" id="ZIP">
+          <div class="form-group">
+            <label for="ZWHOUSE" class="control-label">申请人:</label>
+            <input type="text" class="form-control" id="ZWHOUSE" name="ZWHOUSE" placeholder="你的真实姓名（必填）">
+          </div>
+          <div class="form-group ">
+            <label for="ZPARTNAME" class="control-label">所在部门:</label>
+            <input type="text" class="form-control" id="ZPARTNAME" name="ZPARTNAME" placeholder="你的部门（必填）">
+          </div>
+          
+          <div class="form-group">
+            <label for="ZMAC" class="control-label">MAC地址:</label>
+            <input type="text" class="form-control" id="ZMAC" name="ZMAC" placeholder="可选，如填写我们会将IP与MAC地址绑定，永远没有人占你抢IP。">
+          </div>
+          
+          <div class="form-group">
+            <label for="ZNOTE" class="control-label">说明:</label>
+            <textarea class="form-control" id="ZNOTE" name="ZNOTE" placeholder="特殊情况说明"></textarea>
+          </div>
+        </form>
+        
+      </div>
+      <div class="modal-footer">
+        <span class="msg-error pull-left" style="color:red"></span>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btnrepidsubmit" style="width:100px;">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 查谁用过了 -->
+
+<div class="modal fade bs-example-modal-lg" id="whouseip" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">  
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">谁用过这个IP</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          
+          
+        </table>  
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+
+
+ 
+  
+<script src="lib/jquery-1.12.2.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+<script>
+  $(document).ready(function(){
+    
+    $('#addipaddress').on('click',function(){
+      if($('.addIPPlane').hasClass('hidden') == true) {
+        $('.addIPPlane').removeClass('hidden').addClass('show');
+        $(this).text('关闭');
+      }
+      else {
+        $('.addIPPlane').removeClass('show').addClass('hidden');
+        $(this).text('增加IP');
+      }
+    });
+    
+    $('#addipbtn').on('click',function(){
+      if($('#ip').val() ==''){
+        $('.msg-error').text('ip不能为空');
+       
+        return false;
+      };
+      
+      if($('#partname').val() ==''){
+        $('.msg-error').text('部门不能为空');
+        return false;
+      };
+      
+      $('form.addip').submit();
+      
+    });
+    
+    //申请窗口
+    $('#myrepip').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) // Button that triggered the modal
+      var myip = button.data('ip');
+      var partname = button.data('partname');
+      
+      
+      $("#myModalLabel").html('你申请IP是<b style="color:blue">' + myip + '</b> ' + partname);
+      var modal = $(this)
+      modal.find('#ZIPGUID').val(button.data('ipguid'));
+      modal.find('#ZIP').val(myip);
+    })
+    
+    
+        
+    $("#btnrepidsubmit").on('click',function(){
+      if($('#myrepip #ZWHOUSE').val()==''){
+        $('#myrepip .msg-error').text('姓名不能为空。');
+        $('#myrepip #ZWHOUSE').closest('.form-group').addClass('has-error');
+        return false;
+      };
+      $('#myrepip #ZWHOUSE').closest('.form-group').removeClass('has-error');
+      
+      if($('#myrepip #ZPARTNAME').val()==''){
+        $('#myrepip .msg-error').text('所在部门不能为空。');
+        $('#myrepip #ZPARTNAME').closest('.form-group').addClass('has-error');
+        return false;
+      };
+      $('#myrepip #ZPARTNAME').closest('.form-group').removeClass('has-error');
+      
+      //向服务器申请了
+      $.post('/ipaddress/repip',{
+        ZPARTNAME:$('#myrepip #ZPARTNAME').val(),
+        ZWHOUSE:$('#myrepip #ZWHOUSE').val(),
+        ZIP:$('#myrepip #ZIP').val(),
+        ZNOTE:$('#myrepip #ZNOTE').val(),
+        ZIPGUID:$('#myrepip #ZIPGUID').val()},function(data,status){
+        
+        
+        if(status == 'success' && data.success == true){
+          alert('申请成功，请公司QQ群内通知网络管理员后台配置。'); 
+          $('#myrepip').modal('hide');
+        }
+        else{
+          $('#myrepip .msg-error').text(data.msg || '申请失败，请重试。');  
+        };
+        
+      });
+      
+
+    });
+    
+    //谁使用过ip窗口 
+    $('a.btnwhouseip').on('click',function(){
+      var myipguid = $(this).attr('data-ipguid');
+      $.get('/ipaddress/whouseip',{ZIPGUID:myipguid},function(data,status){
+        if(status == 'success' && data.success == true){
+          var table =  $('#whouseip').find('.table');
+          table.empty();
+          for(var i=0;i < data.rows.length;i++){
+            var tr = $('<tr></tr>');
+            tr.append($('<td></td>').text(data.rows[i].ZVERIFY == true? '审核过' : '等审中'))
+            tr.append($('<td></td>').text(data.rows[i].ZPARTNAME +  ' ' + data.rows[i].ZWHOUSE));
+            tr.append($('<td></td>').text(data.rows[i].myd));
+            tr.append($('<td></td>').text(data.rows[i].ZMAC));
+            tr.append($('<td></td>').text(data.rows[i].ZNOTE));
+            if(!data.rows[i].VERNAME){
+              tr.append($('<td></td>').html('<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '">可以使用</a>'));    
+            }
+            else{
+              tr.append($('<td></td>').text(data.rows[i].VERNAME + '/' +  data.rows[i].mydd));
+            }
+            
+            table.append(tr);
+          };
+          
+          if(table.find('tr').length==0){
+            table.append('没有人使用过这个ip 你将会是第一个使用。')  
+          };
+          
+          $('#whouseip').modal('show');
+        } 
+        else{
+          alert('读取数据出错....');
+        }
+      }); 
+    
+    });
+    
+
+  });
+</script>  
+</body>
+</html>
+

@@ -19,10 +19,14 @@
   
   div.appname h1{
     margin-left: 20px;
+    text-align: center;
   }
   
+  div.loginform{
+    padding: 0px 50px 0px 50px;
+  }
   form{
-    margin-top: 100px;
+    margin-top: 0px;
   }
   
   div.btn button{
@@ -30,8 +34,7 @@
     background-color: aquamarine;
   }
   
-  div.loginimg{
-    padding: 100px 50px 30px 50px;
+  .loginimg{
     padding-right: 100px;
     text-align: center;
     vertical-align: middle;
@@ -53,39 +56,39 @@
   }
 </style>
 <body>
+  <div class="container">
   <div class="page-header appname"><h1>擎洲开发管理系统</h1></div>
-  <div class="row">
-    <div class="col-sm-6 loginimg">
-      <p class="lead"><%=today%></p>
-    </div>
-    <div class="col-sm-6">
+  <div class="loginform">
+      <p class="lead loginimg"><%=today%></p>
       <form class="form-horizontal loginform" method="post" action="/login">
         <div class="form-group has-success">
-          <label for="inputEmail3" class="col-sm-2 control-label">姓名</label>
-          <div class="col-sm-8">
+          <label for="inputEmail3" class="col-md-4 control-label">姓名</label>
+          <div class="col-md-4">
             <input type="text" class="form-control" id="myname" name="myname" placeholder="你的大名" >
             <span id="helpBlock" class="help-block">你的真实姓名.</span>
           </div> 
         </div>
 
         <div class="form-group">
-          <label for="inputEmail3" class="col-sm-2 control-label">密码</label>
-          <div class="col-sm-8">
+          <label for="inputEmail3" class="col-sm-4 control-label">密码</label>
+          <div class="col-md-4">
             <input type="password" class="form-control" id="mypw" name="mypasswd" placeholder="你的密码">
           </div>
         </div>
 
         <div class="form-group">
-        <div class="col-sm-offset-2   col-sm-10">
-          <button type="button" class="btn btn-success" id="dobtn"><i class="fa fa-check fa-fw"></i>登录</button>
+        <div class="col-sm-offset-4 col-md-10">
           <span class="msgtxt"><%=msgbox[0] && msgbox[0].msg%></span>
+          <button type="button" class="btn btn-success" id="dobtn"><i class="fa fa-check fa-fw"></i>登录</button>
+          <a href="/ipaddress"  class="btn btn-success"  role="button">IP地址申请</a>
         </div>
         </div>
       </form>
-  </div>
     
 </div>
-  
+ 
+
+</div>  
 </body>
   
 <script src="/lib/jquery-1.12.2.min.js"></script>

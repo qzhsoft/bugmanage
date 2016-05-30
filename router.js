@@ -28,6 +28,9 @@ router.use('/user',require('./controller/user.js'));
 //svn日志
 router.use('/svn',hasloginuser,require('./controller/svn.js'));
 
+//ip
+router.use('/ipaddress',require('./controller/ipaddress.js'));
+
 //都没有找到，转到其他。
 router.get('/', hasloginuser,function (req, res) {
   res.redirect('/main');
