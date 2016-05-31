@@ -66,11 +66,11 @@
                   <small class="pull-right btnsmall"> <a href="/ipaddress/blackip/<%=ips[i].ZGUID%>" style="color:red" >回收IP</a></small>
                 </td>
                 <td style="background-color:green"><%=ips[i].ZMAC!='null' ?ips[i].ZMAC : '' %></td>
-                <td style="background-color:green"><%=ips[i].ZTITLE%></td>
+                <td style="background-color:green"><%=ips[i].ZTITLE !='null' ?  ips[i].ZTITLE : '' %></td>
              <%} else if(ips[i].ZVERIFY==0) {%>
                 <td style="background-color:yellow"><%=ips[i].BZWHOUSE%></td>
-                <td style="background-color:yellow"><%=ips[i].BZMAC %></td>
-                <td style="background-color:yellow"><%=ips[i].BZNOTE%></td> 
+                <td style="background-color:yellow"><%=ips[i].BZMAC !='null' ? ips[i].BZMAC : ''  %></td>
+                <td style="background-color:yellow"><%=ips[i].BZNOTE != 'null' ? ips[i].BZNOTE : ''  %></td> 
              <%} else{%>
                <td></td>
                <td></td>
@@ -129,7 +129,7 @@
           </div>
           
           <div class="form-group">
-            <label for="ZMAC" class="control-label">MAC地址:</label>
+            <label for="ZMAC" class="control-label">MAC地址: <a href="http://jingyan.baidu.com/article/2d5afd69930bdb85a2e28e32.html"  target="_blank">怎么查MAC</a></label>
             <input type="text" class="form-control" id="ZMAC" name="ZMAC" placeholder="可选，如填写我们会将IP与MAC地址绑定，永远没有人占你抢IP。">
           </div>
           
