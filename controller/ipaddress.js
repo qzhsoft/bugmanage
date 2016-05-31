@@ -10,7 +10,7 @@ var EventProxy = require('eventproxy');
 var util = require('util');
 
 var get_index = function(req,res,next){
-  var mysqltxt = 'select a.*,CONVERT(varchar(100), a.ZUSEDATE, 20) as myd,b.ZWHOUSE as BZWHOUSE,b.ZMAC as BZMAC ,b.ZNOTE as BZNOTE,b.ZVERIFY from ERP_IPADDRESS as a left join (select * from ERP_IPADDRESS_ITEM where ERP_IPADDRESS_ITEM.ZVERIFY=0) as b  on ( a.ZGUID=b.ZIPGUID )  order by ZIDX';
+  var mysqltxt = 'select a.*,CONVERT(varchar(100), a.ZUSEDATE, 20) as myd,b.ZWHOUSE as BZWHOUSE,b.ZMAC as BZMAC ,b.ZNOTE as BZNOTE,b.ZVERIFY from ERP_IPADDRESS as a left join (select  * from ERP_IPADDRESS_ITEM where ERP_IPADDRESS_ITEM.ZVERIFY=0) as b  on ( a.ZGUID=b.ZIPGUID )  order by ZIDX';
   Db.query(mysqltxt,function(err,rows){
     
     res.render('ipaddress.html',{
@@ -70,18 +70,22 @@ var post_addip = function(req,res,next){
 };
 
 
+//
+//申请使用ip
+//
 var post_repip = function(req,res,next){
   var ZWHOUSE = req.body.ZWHOUSE;         //谁
   var ZPARTNAME = req.body.ZPARTNAME;     //哪个部门
+  var ZMAC = req.body.ZMAC || null;
   var ZIPGUID = req.body.ZIPGUID;
   var ZIP = req.body.ZIP;
-  var ZNOTE = req.body.ZNOTE;  //说明
+  var ZNOTE = req.body.ZNOTE || null;  //说明
   
   //现在写库了。
   var myguidn= guid();
-  var mysqlfrm = "insert into ERP_IPADDRESS_ITEM(ZGUID,ZIPGUID,ZIP,ZUSEDATE,ZWHOUSE,ZPARTNAME,ZNOTE) values" +
-                 "('%s','%s','%s',GETDATE(),'%s','%s','%s')";
-  var mysqltxt = util.format(mysqlfrm,myguidn,ZIPGUID,ZIP,ZWHOUSE,ZPARTNAME,ZNOTE);
+  var mysqlfrm = "insert into ERP_IPADDRESS_ITEM(ZGUID,ZIPGUID,ZIP,ZUSEDATE,ZWHOUSE,ZPARTNAME,ZNOTE,ZMAC) values" +
+                 "('%s','%s','%s',GETDATE(),'%s','%s','%s','%s')";
+  var mysqltxt = util.format(mysqlfrm,myguidn,ZIPGUID,ZIP,ZWHOUSE,ZPARTNAME,ZNOTE,ZMAC);
   
   Db.query(mysqltxt,function(err){
     res.json({success:!err,msg:err});
@@ -100,45 +104,58 @@ var get_whouseip = function(req,res,next){
   });
 };
 
+//
+//可以使用
+//
 var get_useip = function(req,res,next){
   var ZGUID = req.params.guid;
   var ZIPGUID = req.params.ipguid;
+  var ZVERIFY = req.params.verify || 0;  //=1 过， 2=不过。
   if(!req.session.user){
     res.header("Content-Type", "application/json; charset=utf-8");
     res.end('你没有登录擎洲开发管理系统，只要有权限登录谁能可以审批使用。');
     return false;
   };
   
-  var mysqlfrm = "update  ERP_IPADDRESS_ITEM set ZVERIFYUSERID=%d,ZVERIFYDATE=GETDATE(),ZVERIFY=1 where ZGUID='%s' and ZIPGUID = '%s'";
-  var mysqltxt = util.format(mysqlfrm,req.session.user.ZID,ZGUID,ZIPGUID);
+  var mysqlfrm = "update  ERP_IPADDRESS_ITEM set ZVERIFYUSERID=%d,ZVERIFYDATE=GETDATE(),ZVERIFY=%d where ZGUID='%s' and ZIPGUID = '%s'";
+  var mysqltxt = util.format(mysqlfrm,req.session.user.ZID,ZVERIFY,ZGUID,ZIPGUID);
   
   Db.query(mysqltxt,function(err){
     if(!err){
-      //回写对应的主表
-      var mysqlfrm  = "select * from ERP_IPADDRESS_ITEM where ZGUID='%s' and ZIPGUID = '%s'  ";
-      var mysqltxt = util.format(mysqlfrm,ZGUID,ZIPGUID);
-      Db.query(mysqltxt,function(err,rows){
-        if(!err && rows && rows.length>0){
-          var mysqlfrm = "update ERP_IPADDRESS set ZWHOUSE='%s', ZUSE=1,ZUSEDATE=GETDATE(),ZMAC='%s',ZTITLE='%s' where ZGUID='%s'";
-          var mysqltxt = util.format(mysqlfrm,rows[0].ZWHOUSE,rows[0].ZMAC,rows[0].ZNOTE,ZIPGUID);
-          Db.query(mysqltxt,function(err){
-            
-            if(!err){
-              res.header("Content-Type", "application/json; charset=utf-8");
-              res.status(200).end('审核成功成功，请到路由器进行配置如你不是网管请主动与网管联系。');
-            }
-            else{
-              res.header("Content-Type", "application/json; charset=utf-8");
-             res.status(404).end('写错出错,并数据不完整请重新申请');
-            }
-            
-          });
-        }
-        else{
-          res.header("Content-Type", "application/json; charset=utf-8");
-          res.status(404).end('写错出错,并数据不完整请重新申请');  
-        }
-      });
+      
+      if(ZVERIFY==1){
+      
+        //回写对应的主表
+        var mysqlfrm  = "select * from ERP_IPADDRESS_ITEM where ZGUID='%s' and ZIPGUID = '%s'  ";
+        var mysqltxt = util.format(mysqlfrm,ZGUID,ZIPGUID);
+        Db.query(mysqltxt,function(err,rows){
+          if(!err && rows && rows.length>0){
+            var mysqlfrm = "update ERP_IPADDRESS set ZWHOUSE='%s', ZUSE=1,ZUSEDATE=GETDATE(),ZMAC='%s',ZTITLE='%s' where ZGUID='%s'";
+            var mysqltxt = util.format(mysqlfrm,rows[0].ZWHOUSE,rows[0].ZMAC,rows[0].ZNOTE,ZIPGUID);
+            Db.query(mysqltxt,function(err){
+
+              if(!err){
+                res.header("Content-Type", "application/json; charset=utf-8");
+                res.status(200).end('审核成功成功，请到路由器进行配置如你不是网管请主动与网管联系。');
+              }
+              else{
+                res.header("Content-Type", "application/json; charset=utf-8");
+               res.status(404).end('写错出错,并数据不完整请重新申请');
+              }
+
+            });
+          }
+          else{
+            res.header("Content-Type", "application/json; charset=utf-8");
+            res.status(404).end('写错出错,并数据不完整请重新申请');  
+          }
+        });
+        
+      }
+      else{
+        res.header("Content-Type", "application/json; charset=utf-8");
+        res.status(200).end('操作完成。');  
+      }
     }
     else{
       res.header("Content-Type", "application/json; charset=utf-8");
@@ -223,7 +240,7 @@ var get_blackip = function(req,res,next){
 
 router.post('/repip',post_repip);//申请ip
 router.post('/addip',post_addip);
-router.get('/useip/:guid/:ipguid',get_useip); //可以使用
+router.get('/useip/:guid/:ipguid/:verify',get_useip); //可以使用
 router.get('/blackip/:ipguid',get_blackip);//回收ip
 router.get('/whouseip',get_whouseip); //取出谁在用
 router.get('/',get_index);

@@ -67,7 +67,7 @@
                 </td>
                 <td style="background-color:green"><%=ips[i].ZMAC!='null' ?ips[i].ZMAC : '' %></td>
                 <td style="background-color:green"><%=ips[i].ZTITLE%></td>
-             <%} else if(ips[i].ZVERIFY==false) {%>
+             <%} else if(ips[i].ZVERIFY==0) {%>
                 <td style="background-color:yellow"><%=ips[i].BZWHOUSE%></td>
                 <td style="background-color:yellow"><%=ips[i].BZMAC %></td>
                 <td style="background-color:yellow"><%=ips[i].BZNOTE%></td> 
@@ -242,6 +242,7 @@
         ZWHOUSE:$('#myrepip #ZWHOUSE').val(),
         ZIP:$('#myrepip #ZIP').val(),
         ZNOTE:$('#myrepip #ZNOTE').val(),
+        ZMAC:$('#myrepip #ZMAC').val(),
         ZIPGUID:$('#myrepip #ZIPGUID').val()},function(data,status){
         
         
@@ -267,13 +268,13 @@
           table.empty();
           for(var i=0;i < data.rows.length;i++){
             var tr = $('<tr></tr>');
-            tr.append($('<td></td>').text(data.rows[i].ZVERIFY == true? '审核过' : '等审中'))
+            tr.append($('<td></td>').text(data.rows[i].ZVERIFY == 0? '等审中' : data.rows[i].ZVERIFY == 1 ? '完成':'失败' ))
             tr.append($('<td></td>').text(data.rows[i].ZPARTNAME +  ' ' + data.rows[i].ZWHOUSE));
             tr.append($('<td></td>').text(data.rows[i].myd));
-            tr.append($('<td></td>').text(data.rows[i].ZMAC));
+            tr.append($('<td></td>').text(data.rows[i].ZMAC=='null'?'':data.rows[i].ZMAC));
             tr.append($('<td></td>').text(data.rows[i].ZNOTE));
             if(!data.rows[i].VERNAME){
-              tr.append($('<td></td>').html('<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '">可以使用</a>'));    
+              tr.append($('<td></td>').html('<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '/1">可以使用</a> | ' + '<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '/2">已有人使用了</a>'));    
             }
             else{
               tr.append($('<td></td>').text(data.rows[i].VERNAME + '/' +  data.rows[i].mydd));

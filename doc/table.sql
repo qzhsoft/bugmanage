@@ -29,7 +29,7 @@ create table ERP_IPADDRESS_ITEM(
   ZWHOUSE        varchar(100),            /*申请人*/
   ZMAC           varchar(100),            /*申请绑定MAC*/
   ZPARTNAME      varchar(100),            /*申请人部门*/
-  ZVERIFY        bit default 0,           /* =1 表示审批过了*/
+  ZVERIFY        int default 0,           /*0=审核中， =1 表示审批过了 2=表示不过*/
   ZVERIFYUSERID  int,                     /* 检核人id*/
   ZVERIFYDATE    date,                    /* 检核人时间*/
   ZNOTE          varchar(250)             /* 备注 */
