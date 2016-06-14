@@ -13,6 +13,7 @@
 <style>
   body{
     background-color: #f2f2f2;
+    
   }
   
   .container{
@@ -123,7 +124,7 @@
          <input type="hidden" name="ZIP" id="ZIP">
           <div class="form-group">
             <label for="ZWHOUSE" class="control-label">申请人:</label>
-            <input type="text" class="form-control" id="ZWHOUSE" name="ZWHOUSE" placeholder="你的真实姓名（必填）">
+            <input type="text" class="form-control" id="ZWHOUSE" name="ZWHOUSE" placeholder="你的真实姓名，如你是替同事申请，填写同事的真实姓名。（必填）">
           </div>
           <div class="form-group ">
             <label for="ZPARTNAME" class="control-label">所在部门:</label>
@@ -132,12 +133,12 @@
           
           <div class="form-group">
             <label for="ZMAC" class="control-label">MAC地址: <a href="http://jingyan.baidu.com/article/2d5afd69930bdb85a2e28e32.html"  target="_blank">怎么查MAC</a></label>
-            <input type="text" class="form-control" id="ZMAC" name="ZMAC" placeholder="可选，如填写我们会将IP与MAC地址绑定，永远没有人占你抢IP。">
+            <input type="text" class="form-control" id="ZMAC" name="ZMAC" placeholder="本地有线网卡的MAC地址，如填写我们会将IP与MAC地址绑定，永远没有人占你抢IP。">
           </div>
           
           <div class="form-group">
             <label for="ZNOTE" class="control-label">说明:</label>
-            <textarea class="form-control" id="ZNOTE" name="ZNOTE" placeholder="特殊情况说明"></textarea>
+            <textarea class="form-control" id="ZNOTE" name="ZNOTE" placeholder="特殊情况说明，如替同事申请可以写你的姓名及原由"></textarea>
           </div>
         </form>
         
@@ -266,14 +267,14 @@
           var table =  $('#whouseip').find('.table');
           table.empty();
           for(var i=0;i < data.rows.length;i++){
-            var tr = $('<tr></tr>');
+            var tr = $('<tr></tr>').addClass('ipitem').attr('ZIPGUID',data.rows[i].ZIPGUID).attr('ZGUID',data.rows[i].ZGUID);
             tr.append($('<td></td>').text(data.rows[i].ZVERIFY == 0? '等审中' : data.rows[i].ZVERIFY == 1 ? '完成':'失败' ))
             tr.append($('<td></td>').text(data.rows[i].ZPARTNAME +  ' ' + data.rows[i].ZWHOUSE));
             tr.append($('<td></td>').text(data.rows[i].myd));
             tr.append($('<td></td>').text(data.rows[i].ZMAC=='null'?'':data.rows[i].ZMAC));
             tr.append($('<td></td>').text(data.rows[i].ZNOTE));
             if(!data.rows[i].VERNAME){
-              tr.append($('<td></td>').html('<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '/1">可以使用</a> | ' + '<a target="_blank" href="/ipaddress/useip/'+ data.rows[i].ZGUID +'/' + data.rows[i].ZIPGUID  + '/2">已有人使用了</a>'));    
+              tr.append($('<td></td>').html('<a type="1" href="javascript:;" class="mycheck" >可以使用</a> | ' + '<a  href="javascript:;" type="2" class="mycheck">已有人使用了</a>'));    
             }
             else{
               tr.append($('<td></td>').text(data.rows[i].VERNAME + '/' +  data.rows[i].mydd));
@@ -294,6 +295,27 @@
       }); 
     
     });
+    
+    
+    
+    $('#whouseip').on('click','a.mycheck',function(){
+     
+      var ZIPGUID = $(this).closest('tr').attr('ZIPGUID');
+      var ZGUID = $(this).closest('tr').attr('ZGUID');
+      var type = $(this).attr('type');
+      var url = '/ipaddress/useip/' + ZGUID + '/' + ZIPGUID + '/' + type  ;
+      var that = this;
+      $.get(url,function(data,status){
+        if(status=='success' && data.success == true){
+          $(that).closest('td').text(data.msg).css('color','green');
+        }
+        else{
+          $(that).closest('td').text(data ? data.msg : '网络出错。').css('color','red');
+        }
+      });
+       
+    });
+    
     
 
   });
