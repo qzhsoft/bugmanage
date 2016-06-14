@@ -117,7 +117,7 @@ var get_useip = function(req,res,next){
   var ep = new EventProxy();
   
   if(!req.session.user){
-    res.json({success:false,msg:'你没有登录擎洲开发管理系统，只要有权限登录谁能可以审批使用。'});
+    res.json({success:false,msg:'你没有登录擎洲开发管理系统，只要有权限登录谁能可以审批使用。<a href="/login">现在登录</a>'});
     return false;
   };
   
@@ -210,8 +210,8 @@ var get_blackip = function(req,res,next){
       if(!err){
         var myguid =guid(); 
         //更新日志库。
-        var mysqlfrm = "insert into ERP_IPADDRESS_ITEM(ZGUID,ZIPGUID,ZNOTE,ZUSEDATE,ZWHOUSE,ZPARTNAME,ZVERIFY,ZVERIFYUSERID) values" +
-                   "('%s','%s','%s',GETDATE(),'%s','%s',1,%d)";
+        var mysqlfrm = "insert into ERP_IPADDRESS_ITEM(ZGUID,ZIPGUID,ZNOTE,ZUSEDATE,ZWHOUSE,ZPARTNAME,ZVERIFY,ZVERIFYUSERID,ZVERIFYDATE) values" +
+                   "('%s','%s','%s',GETDATE(),'%s','%s',1,%d,GETDATE())";
         var mysqltxt = util.format(mysqlfrm,
                                    myguid,
                                    ZIPGUID,
@@ -248,9 +248,23 @@ var get_blackip = function(req,res,next){
     ep.emit('ipaddress',!err && rows && rows.length>0 ? rows[0]: null);
   });
   
+ 
+};
+
+
+var get_checknum = function(req,res,next){
   
-  
-  
+  var guid = req.params.guid;
+  var mysqltxt_frm = "select count(*) as myv from ERP_IPADDRESS_ITEM where ZIPGUID = '%s' and ZVERIFY = 0";
+  var mysqltxt = util.format(mysqltxt_frm,guid);
+  Db.query(mysqltxt,function(err,rows){
+    if(!err && rows && rows.length>0){
+      res.json({success:true,msg:'',num:rows[0].myv});  
+    }
+    else{
+      res.json({success:false,msg:''});
+    }
+  });
   
 };
 
@@ -259,6 +273,7 @@ router.post('/addip',post_addip);
 router.get('/useip/:guid/:ipguid/:verify',get_useip); //可以使用
 router.get('/blackip/:ipguid',get_blackip);//回收ip
 router.get('/whouseip',get_whouseip); //取出谁在用
+router.get('/checknum/:guid',get_checknum); //取出审批个数
 router.get('/',get_index);
 
 

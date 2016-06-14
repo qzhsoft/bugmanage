@@ -21,8 +21,8 @@
     background-color: #fff;
   }
   
-  div.iplist {
-   
+  div.iplist table td {
+   vertical-align: middle;
   }
   
   .addIPPlane{
@@ -48,19 +48,21 @@
         <table class="table table-bordered table-hover">
           <tr>
             <th>部门</th>
-            <th>IP</th>
+            <th width="30px">IP</th>
             <th>姓名</th>
             <th>MAC地址</th>
             <th>说明</th>
           </tr>
 
           <% for( var i=0;i<ips.length;i++) { %>
-            <tr guid="<%=ips[i].ZGUID%>">
+            <tr guid="<%=ips[i].ZGUID%>" class="ipaddress">
               <td><%=ips[i].ZPARTNAME%> </td>
-              <td>
-                <%=ips[i].ZIP%>
-                <small class="pull-right btnsmall"> <a class="btnwhouseip" href="javascript:;" data-ipguid="<%=ips[i].ZGUID%>" >曾经谁用过</a></small>
-                <small class="pull-right btnsmall"> <a data-toggle="modal" data-target="#myrepip" href="javascript:;" class="myrepid" data-ip="<%=ips[i].ZIP%>" data-partname="<%=ips[i].ZPARTNAME%>" data-ipguid="<%=ips[i].ZGUID%>">我申请使用</a></small>
+              <td nowrap="nowrap">
+                <span class="text-warning"><%=ips[i].ZIP%></span>
+                <div class="pull-right">
+                    <small class="btnsmall"> <a data-toggle="modal" data-target="#myrepip" href="javascript:;" class="myrepid" data-ip="<%=ips[i].ZIP%>" data-partname="<%=ips[i].ZPARTNAME%>" data-ipguid="<%=ips[i].ZGUID%>">我申请使用</a></small>
+                    <small class="btnsmall"> <a class="btnwhouseip" href="javascript:;" data-ipguid="<%=ips[i].ZGUID%>" >曾经谁用过 <span class="badge checknum "></span></a></small>
+                </div>
               </td>
               
               <% if(ips[i].ZUSE ==1){ %>
@@ -162,7 +164,7 @@
         <h4 class="modal-title" id="myModalLabel">谁用过这个IP</h4>
       </div>
       <div class="modal-body">
-        <table class="table">
+        <table class="table table-striped table-bordered table-hover">
           
           
         </table>  
@@ -307,13 +309,31 @@
       var that = this;
       $.get(url,function(data,status){
         if(status=='success' && data.success == true){
-          $(that).closest('td').text(data.msg).css('color','green');
+          $(that).closest('td').html(data.msg).css('color','green');
         }
         else{
-          $(that).closest('td').text(data ? data.msg : '网络出错。').css('color','red');
+          $(that).closest('td').html(data ? data.msg : '网络出错。').css('color','red');
         }
       });
        
+    });
+    
+    //读取出有几条还没有审过的
+    $('tr.ipaddress').each(function(idx,item){
+      var guid = $(item).attr('guid');
+      $.get('/ipaddress/checknum/' + guid,function(data,status){
+        if(status == 'success' && data.success == true){
+          if(data.num>0){
+            $(item).find('.checknum').text(data.num);  //显示出数量。 
+          }
+          else{
+            $(item).find('.checknum').addClass('hidden');   
+          }
+        }
+        else{
+          $(item).find('.checknum').addClass('hidden');
+        }
+      });
     });
     
     
